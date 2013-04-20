@@ -8,5 +8,12 @@ Questions
 
 * how to make the package installer compile the c source (or is that necessary?)
 * how to actually compile the c source
+
+```bash
+
+node-gyp rebuild
+
+```
+
 * how to export the functions such that they are accessable to node
 * um? 
