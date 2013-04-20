@@ -11,6 +11,13 @@
       'sources': [ 
         'src/object.cc' 
       ]
+    },
+    {
+      'target_name': 'class',
+      'sources': [ 
+        'src/class.cc',
+        'src/myclass.cc'
+      ]
     }
   ]
 }

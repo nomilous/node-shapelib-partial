@@ -21,3 +21,13 @@ fun.callback 9.9, (result) ->
 obj = require './build/Release/object'
 
 console.log obj 'value1', 'value2'
+
+
+
+Class = require('./build/Release/class').MyClass
+
+c = new Class 99
+
+console.log c.increment()
+console.log c.increment()
+console.log c.increment()
