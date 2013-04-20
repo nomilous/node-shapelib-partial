@@ -1,18 +1,12 @@
+Ok, need this now. Can get none of the existing shapelib node tools to work.<br />
+Feeling a little out of my depth, but, here goes... <br />
 
+Attempt bindings for [shapelib](http://shapelib.maptools.org/) as a [node addon](http://nodejs.org/api/addons.html)
 
-Bindings for [shapelib](http://shapelib.maptools.org/)
+Questions
+---------
 
-
-(pending) android
------------------
-
-[Android NDK](http://developer.android.com/tools/sdk/ndk/index.html)
-
-
-
-(pending) nodejs
-----------------
-
-[Node addons](http://nodejs.org/api/addons.html)
-
-
+* how to make the package installer compile the c source (or is that necessary?)
+* how to actually compile the c source
+* how to export the functions such that they are accessable to node
+* um? 
