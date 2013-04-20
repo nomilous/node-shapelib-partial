@@ -51,7 +51,7 @@ all_deps :=
 # This will allow make to invoke N linker processes as specified in -jN.
 LINK ?= ./gyp-mac-tool flock $(builddir)/linker.lock $(CXX)
 
-CC.target ?= $(CC)
+CC.target ?= gcc-4.2
 CFLAGS.target ?= $(CFLAGS)
 CXX.target ?= $(CXX)
 CXXFLAGS.target ?= $(CXXFLAGS)
@@ -339,8 +339,8 @@ ifeq ($(strip $(foreach prefix,$(NO_LOAD),\
 endif
 
 quiet_cmd_regen_makefile = ACTION Regenerating $@
-cmd_regen_makefile = /usr/local/lib/node_modules/node-gyp/gyp/gyp -fmake --ignore-environment "--toplevel-dir=." -I/Users/richard/git/shapelib-maptools-org/build/config.gypi -I/usr/local/lib/node_modules/node-gyp/addon.gypi -I/Users/richard/.node-gyp/0.8.11/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/Users/richard/.node-gyp/0.8.11" "-Dmodule_root_dir=/Users/richard/git/shapelib-maptools-org" binding.gyp
-Makefile: $(srcdir)/../../.node-gyp/0.8.11/common.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp $(srcdir)/../../../../usr/local/lib/node_modules/node-gyp/addon.gypi
+cmd_regen_makefile = /usr/local/lib/node_modules/node-gyp/gyp/gyp -fmake --ignore-environment "--toplevel-dir=." -I/Users/richard/git/shapelib-maptools-org/build/config.gypi -I/usr/local/lib/node_modules/node-gyp/addon.gypi -I/Users/richard/.node-gyp/0.10.4/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/Users/richard/.node-gyp/0.10.4" "-Dmodule_root_dir=/Users/richard/git/shapelib-maptools-org" binding.gyp
+Makefile: $(srcdir)/../../.node-gyp/0.10.4/common.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp $(srcdir)/../../../../usr/local/lib/node_modules/node-gyp/addon.gypi
 	$(call do_cmd,regen_makefile)
 
 # "all" is a concatenation of the "all" targets from all the included
