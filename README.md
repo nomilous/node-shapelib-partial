@@ -18,5 +18,12 @@ the [worlds tallest chimneys](http://en.wikipedia.org/wiki/List_of_tallest_chimn
 
 ### Fourth
 
+red sprites over new mexico
+
+![red sprites](http://www.weathercast.co.uk/typo3temp/pics/7c993ba1e9.jpg)
+
+
+### Fourth
+
 ... the v8/node bindings
 
