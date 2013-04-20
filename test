@@ -6,3 +6,7 @@ fun.callback 9.9, (result) ->
 
     console.log result
 
+
+obj = require './build/Release/object'
+
+console.log obj 'value1', 'value2'
