@@ -13,3 +13,16 @@ wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110
 unzip ne_110m_land.zip
 
 ```
+
+### build shapelib
+
+```bash
+
+cd shapelib
+make
+
+#
+# runs fine on osx 
+#
+
+```
