@@ -1,0 +1,4 @@
+#!/usr/bin/env coffee
+
+test = require './build/Release/test'
+console.log test.square 9.9
