@@ -13,5 +13,3 @@ shptest
 *.la
 *.lo
 .libs
-*.o
-*.a
