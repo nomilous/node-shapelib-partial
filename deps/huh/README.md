@@ -1,7 +1,3 @@
-### First
-
-Figure out how to use shapelib... :)
-
 ### Sample data
 
 Earth landmass polygons, including major islands. From [Natural Earth](http://www.naturalearthdata.com/), with much appreciation!
@@ -18,11 +14,11 @@ unzip ne_110m_land.zip
 
 ```bash
 
-cd shapelib
+cd ../shapelib
 make
 
 #
-# runs fine on osx 
+# runs fine on osx
 #
 
 ```

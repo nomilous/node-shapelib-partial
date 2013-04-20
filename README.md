@@ -1,18 +1,17 @@
-Ok, need this now. Can get none of the existing shapelib node tools to work.<br />
-Feeling a little out of my depth, but, here goes... <br />
 
-Questions
----------
+Node bindings for [shapelib.maptools.org](http://shapelib.maptools.org/)'s implementation of the [ESRI](http://www.esri.com/) shapefile specification.
 
-* how to make the package installer compile the c source (or is that necessary?)
-* how to actually compile the c source
+### First
 
-```bash
+[how do node c bindings work](https://github.com/nomilous/shapelib-maptools-org/tree/master/learn_bindings)
 
-sudo npm install -g node-gyp
-node-gyp rebuild
 
-```
+### Second 
 
-* how to export the functions such that they are accessable to node
-* um? 
+[how to use shapelib](https://github.com/nomilous/shapelib-maptools-org/tree/master/deps/huh)
+
+
+### Third
+
+... the v8/node bindings
+
