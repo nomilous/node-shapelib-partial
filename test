@@ -2,6 +2,6 @@
 
 test = require './build/Release/test'
 
-test.square 9.9, (result) -> 
+test.callback 9.9, (result) -> 
 
     console.log result

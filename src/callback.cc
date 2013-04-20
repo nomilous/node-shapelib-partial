@@ -7,7 +7,7 @@ using namespace v8;
 // define a function that squares the passed number
 // 
 
-Handle<Value> Square(const Arguments& args) {
+Handle<Value> Callback(const Arguments& args) {
 
   HandleScope scope;
 
@@ -49,15 +49,15 @@ Handle<Value> Square(const Arguments& args) {
 // export the function
 // 
 
-void square(Handle<Object> exports) {
+void callback(Handle<Object> exports) {
 
   exports->Set(
 
-    String::NewSymbol("square"),
-    FunctionTemplate::New(Square)->GetFunction()
+    String::NewSymbol("callback"),
+    FunctionTemplate::New(Callback)->GetFunction()
 
   );
 
 }
 
-NODE_MODULE(test, square)
+NODE_MODULE(test, callback)
