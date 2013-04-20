@@ -2,9 +2,20 @@
 
 fun = require './build/Release/function'
 
+
+console.log fun.multiply 9.9
+
+
+func = fun.function()
+console.log func 9.9
+
+
+
 fun.callback 9.9, (result) -> 
 
     console.log result
+
+
 
 
 obj = require './build/Release/object'

@@ -3,8 +3,42 @@
 
 using namespace v8;
 
+
+Handle<Value> Multiply(const Arguments& args) {
+
+  HandleScope scope;
+  return scope.Close(
+
+    Number::New(
+    
+      args[0]->NumberValue() * args[0]->NumberValue()
+
+    )
+
+  );
+
+}
+
 //
-// define a function that squares the passed number
+// return a function
+//
+
+Handle<Value> CreateFunction(const Arguments& args) {
+
+  HandleScope scope;
+
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(Multiply);
+  Local<Function> fn = tpl->GetFunction();
+  fn->SetName(String::NewSymbol("function")); // omit this to make it anonymous
+
+  return scope.Close(fn);
+
+}
+
+
+
+//
+// execute a callback
 // 
 
 Handle<Value> RunFunction(const Arguments& args) {
@@ -49,7 +83,33 @@ Handle<Value> RunFunction(const Arguments& args) {
 // export the function
 // 
 
-void callback(Handle<Object> exports) {
+void Init(Handle<Object> exports) {
+
+  //
+  // exports = multiply (run a function)
+  //
+
+  exports->Set(
+
+    String::NewSymbol("multiply"),
+    FunctionTemplate::New(Multiply)->GetFunction()
+
+  );
+
+  //
+  // exports = function (return the function)
+  //
+
+  exports->Set(
+
+    String::NewSymbol("function"),
+    FunctionTemplate::New(CreateFunction)->GetFunction()
+
+  );
+
+  //
+  // exports = callback (runs a callback)
+  //
 
   exports->Set(
 
@@ -60,4 +120,4 @@ void callback(Handle<Object> exports) {
 
 }
 
-NODE_MODULE(function, callback)
+NODE_MODULE(function, Init)
