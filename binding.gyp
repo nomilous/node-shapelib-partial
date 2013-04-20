@@ -1,9 +1,9 @@
 {
   'targets': [
     {
-      'target_name': 'test',
+      'target_name': 'function',
       'sources': [ 
-        'src/callback.cc' 
+        'src/function.cc' 
       ]
     }
   ]

@@ -1,7 +1,8 @@
 #!/usr/bin/env coffee
 
-test = require './build/Release/test'
+fun = require './build/Release/function'
 
-test.callback 9.9, (result) -> 
+fun.callback 9.9, (result) -> 
 
     console.log result
+

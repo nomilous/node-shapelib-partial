@@ -7,7 +7,7 @@ using namespace v8;
 // define a function that squares the passed number
 // 
 
-Handle<Value> Callback(const Arguments& args) {
+Handle<Value> RunFunction(const Arguments& args) {
 
   HandleScope scope;
 
@@ -54,10 +54,10 @@ void callback(Handle<Object> exports) {
   exports->Set(
 
     String::NewSymbol("callback"),
-    FunctionTemplate::New(Callback)->GetFunction()
+    FunctionTemplate::New(RunFunction)->GetFunction()
 
   );
 
 }
 
-NODE_MODULE(test, callback)
+NODE_MODULE(function, callback)
