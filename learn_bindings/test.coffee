@@ -26,7 +26,7 @@ console.log obj 'value1', 'value2'
 
 Class = require('./build/Release/class').MyClass
 
-c = new Class 99
+c = new Class 299792458
 
 console.log c.increment()
 console.log c.increment()
