@@ -4,7 +4,7 @@ Figure out how to use shapelib... :)
 
 ### Sample data
 
-Earth landmass polygons, including major islands. From [Natural Earth](http://www.naturalearthdata.com/downloads/110m-physical-vectors/110m-land/), with much appreciation!
+Earth landmass polygons, including major islands. From [Natural Earth](http://www.naturalearthdata.com/), with much appreciation!
 
 
 ```bash
