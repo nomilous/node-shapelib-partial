@@ -27,7 +27,7 @@ make
 
 ```bash
 
-gcc -I ../shapelib ../shapelib/libshp.a huh.c -o huh && ./huh ne_110m_land
+gcc -I ../shapelib ../shapelib/libshp.a read_shape_file.c -o read_shape_file && ./read_shape_file ne_110m_land
 
 
 ```
