@@ -33,7 +33,7 @@ int main( int argc, char ** argv )
 
   if( argc < 2 ) { 
 
-    printf( "usage: huh <shapefile> (without file.extension)\n" );
+    printf( "usage: shape_read_file <shapefile> (without file.extension)\n" );
     return;
 
   }
@@ -66,7 +66,7 @@ int main( int argc, char ** argv )
 
     for( j = 0; j < shape->nVertices; j++ ) {
 
-      printf( "%f, %f, %f\n", shape->padfX[j], shape->padfY[j], shape->padfZ[j] );
+      printf( "%f, %f, %f, %f\n", shape->padfX[j], shape->padfY[j], shape->padfZ[j], shape->padfM[j] );
 
     }
 
@@ -77,5 +77,5 @@ int main( int argc, char ** argv )
   SHPClose( shapeHandle );
 
   return 0;
-  
+
 }
