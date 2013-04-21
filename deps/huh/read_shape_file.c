@@ -49,9 +49,13 @@ int main( int argc, char ** argv )
   SHPGetInfo( shapeHandle, &shapeEntityCount, &shapeType, minBounds, maxBounds );
   printf( "entities: %i, type: %i\n", shapeEntityCount, shapeType );
 
-  int i;
-  
+
+  printf( "min bounds: %f, %f, %f\n", minBounds[0], minBounds[1], minBounds[2] );
+  printf( "max bounds: %f, %f, %f\n", maxBounds[0], maxBounds[1], maxBounds[2] );
+
+  int i, j;
   for( i = 0; i < shapeEntityCount; i++ ) {
+  //for( i = 0; i < 1; i++ ) {
 
     shape = SHPReadObject( shapeHandle, i );
 
@@ -60,12 +64,18 @@ int main( int argc, char ** argv )
     printf( "parts: %i\n", shape->nParts );
     printf( "vertex count: %i\n", shape->nVertices );
 
+    for( j = 0; j < shape->nVertices; j++ ) {
+
+      printf( "%f, %f, %f\n", shape->padfX[j], shape->padfY[j], shape->padfZ[j] );
+
+    }
+
     SHPDestroyObject( shape );
 
   }
 
   SHPClose( shapeHandle );
 
-
   return 0;
+  
 }
