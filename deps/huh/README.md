@@ -22,3 +22,12 @@ make
 #
 
 ```
+
+### compile and run `huh`
+
+```bash
+
+gcc -I ../shapelib ../shapelib/libshp.a huh.c -o huh && ./huh ne_110m_land
+
+
+```
