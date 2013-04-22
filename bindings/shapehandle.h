@@ -2,19 +2,20 @@
 #define SHAPEHANDLE_H
 
 #include <node.h>
+#include "shapefil.h"
 
 class ShapeHandle : public node::ObjectWrap {
 
-  public:
+    public:
 
-    static void Init( v8::Handle<v8::Object> exports );
+        static void Init( v8::Handle<v8::Object> exports );
 
-  private:
+    private:
 
-    ShapeHandle();
-    ~ShapeHandle();
+        ShapeHandle();
+        ~ShapeHandle();
 
-    static v8::Handle<v8::Value> New(const v8::Arguments& args);
+        static v8::Handle<v8::Value> New(const v8::Arguments& args);
 
 };
 

@@ -23,7 +23,13 @@ red sprites over new mexico
 ![red sprites](http://www.weathercast.co.uk/typo3temp/pics/7c993ba1e9.jpg)
 
 
-### Fourth
+### Fifth
 
-... the v8/node bindings
+... (in progress) the v8/node bindings
+
+```bash
+
+node-gyp rebuild && ./test.coffee
+
+```
 

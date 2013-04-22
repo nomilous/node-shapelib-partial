@@ -64,6 +64,10 @@ int main( int argc, char ** argv )
     printf( "parts: %i\n", shape->nParts );
     printf( "vertex count: %i\n", shape->nVertices );
 
+    //
+    // not supporting the posibility of multiple parts...
+    //
+
     for( j = 0; j < shape->nVertices; j++ ) {
 
       printf( "%f, %f, %f, %f\n", shape->padfX[j], shape->padfY[j], shape->padfZ[j], shape->padfM[j] );
