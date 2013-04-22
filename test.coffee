@@ -2,6 +2,10 @@
 
 ShapeHandle = require('./build/Release/shapelib_bindings').ShapeHandle
 
-shapeHandle = new ShapeHandle( './deps/huh/ne_110m_land' )
+shapeHandle = new ShapeHandle()
+
+shapeHandle.open './build/Release/shapelib_bindings' 
+
+
 
 console.log shapeHandle

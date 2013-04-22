@@ -1,4 +1,8 @@
+#include <v8.h>
 #include <node.h>
+#include <string>
+#include <stdlib.h>
+#include <node_buffer.h>
 #include "shapehandle.h"
 
 using namespace v8;
@@ -7,20 +11,24 @@ ShapeHandle::ShapeHandle() {
 
     printf("ShapeHandle::ShapeHandle()\n");
     
-    int shapeEntityCount;
-    int shapeType;
-    double minBounds[4];
-    double maxBounds[4];
+    //
+    // pending push into async operation with .open( <shapefile>, callback )
+    //
+    
+    // int shapeEntityCount;
+    // int shapeType;
+    // double minBounds[4];
+    // double maxBounds[4];
 
-    SHPHandle shapeHandle;
+    // SHPHandle shapeHandle;
 
-    shapeHandle = SHPOpen( "./deps/huh/ne_110m_land", "rb" );
-    SHPGetInfo( shapeHandle, &shapeEntityCount, &shapeType, minBounds, maxBounds );
-    printf( "entities: %i, type: %i\n", shapeEntityCount, shapeType );
-    printf( "min bounds: %f, %f, %f\n", minBounds[0], minBounds[1], minBounds[2] );
-    printf( "max bounds: %f, %f, %f\n", maxBounds[0], maxBounds[1], maxBounds[2] );
+    // shapeHandle = SHPOpen( "./deps/huh/ne_110m_land", "rb" );
+    // SHPGetInfo( shapeHandle, &shapeEntityCount, &shapeType, minBounds, maxBounds );
+    // printf( "entities: %i, type: %i\n", shapeEntityCount, shapeType );
+    // printf( "min bounds: %f, %f, %f\n", minBounds[0], minBounds[1], minBounds[2] );
+    // printf( "max bounds: %f, %f, %f\n", maxBounds[0], maxBounds[1], maxBounds[2] );
 
-    SHPClose( shapeHandle );
+    // SHPClose( shapeHandle );
 
 };
 
@@ -32,8 +40,15 @@ void ShapeHandle::Init(Handle<Object> exports) {
 
     printf("ShapeHandle::Init()\n");
     Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+
     tpl->SetClassName(String::NewSymbol("ShapeHandle"));
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+    tpl->PrototypeTemplate()->Set(
+        String::NewSymbol("open"),
+        FunctionTemplate::New(Open)->GetFunction()
+    );
+
     Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
     exports->Set(String::NewSymbol("ShapeHandle"), constructor);
 
@@ -46,5 +61,21 @@ Handle<Value> ShapeHandle::New(const Arguments& args) {
     ShapeHandle* obj = new ShapeHandle();
     obj->Wrap(args.This());
     return args.This();
+
+}
+
+Handle<Value> ShapeHandle::Open(const Arguments& args) {
+
+    HandleScope scope;
+
+    String::Utf8Value arg0(args[0]);
+    std::string filename = std::string(*arg0);
+
+    printf("ShapeHandle::Open('%s')\n", filename.c_str());
+
+
+
+    ShapeHandle* obj = ObjectWrap::Unwrap<ShapeHandle>(args.This());
+    return scope.Close(Boolean::New(true));
 
 }

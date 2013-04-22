@@ -16,6 +16,7 @@ class ShapeHandle : public node::ObjectWrap {
         ~ShapeHandle();
 
         static v8::Handle<v8::Value> New(const v8::Arguments& args);
+        static v8::Handle<v8::Value> Open(const v8::Arguments& args);
 
 };
 
