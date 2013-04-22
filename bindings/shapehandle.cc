@@ -5,6 +5,8 @@
 #include <node_buffer.h>
 #include "shapehandle.h"
 
+using namespace std;
+using namespace node;
 using namespace v8;
 
 ShapeHandle::ShapeHandle() {
@@ -14,7 +16,7 @@ ShapeHandle::ShapeHandle() {
     //
     // pending push into async operation with .open( <shapefile>, callback )
     //
-    
+
     // int shapeEntityCount;
     // int shapeType;
     // double minBounds[4];
@@ -69,7 +71,7 @@ Handle<Value> ShapeHandle::Open(const Arguments& args) {
     HandleScope scope;
 
     String::Utf8Value arg0(args[0]);
-    std::string filename = std::string(*arg0);
+    string filename = string(*arg0);
 
     printf("ShapeHandle::Open('%s')\n", filename.c_str());
 
