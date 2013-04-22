@@ -1,13 +1,28 @@
-#include <v8.h>
-#include <node.h>
-#include <string>
-#include <stdlib.h>
-#include <node_buffer.h>
 #include "shapehandle.h"
 
-using namespace std;
-using namespace node;
-using namespace v8;
+void async_open(uv_work_t *job) {
+
+    //
+    // open the shapefile and load shapeInfo
+    //
+
+    async_open_request *request =     
+        (struct async_open_request *) job->data;
+
+    printf("async_open(   '''''%s'''''    )\n", request->filename);
+
+}
+
+
+void async_open_after(uv_work_t * job, int) {
+
+    //
+    // callback the shape info and free() resources
+    //
+
+    printf("async_open_after()");
+
+}
 
 ShapeHandle::ShapeHandle() {
 
@@ -48,7 +63,7 @@ void ShapeHandle::Init(Handle<Object> exports) {
 
     tpl->PrototypeTemplate()->Set(
         String::NewSymbol("open"),
-        FunctionTemplate::New(Open)->GetFunction()
+        FunctionTemplate::New(OpenAsync)->GetFunction()
     );
 
     Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
@@ -66,18 +81,44 @@ Handle<Value> ShapeHandle::New(const Arguments& args) {
 
 }
 
-Handle<Value> ShapeHandle::Open(const Arguments& args) {
+Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
 
     HandleScope scope;
+    async_open_request * request;
+    uv_work_t * job;
 
-    String::Utf8Value arg0(args[0]);
-    string filename = string(*arg0);
+    if (args.Length() != 2) {
+        return ThrowException(
+            Exception::Error(String::New(
+                "Expected ShapeHandle::Open(<filename>,<callback>)"))
+        );
+    }
 
-    printf("ShapeHandle::Open('%s')\n", filename.c_str());
+    //
+    // assemble request parameters 
+    //
+
+    String::Utf8Value filename(args[0]);
+    request = (async_open_request *) malloc(
+        sizeof(struct async_open_request) + filename.length() + 1
+    );
+    request->callback = Persistent<Function>::New(
+        Local<Function>::Cast(args[1])
+    );
+    strncpy( request->filename, *filename, filename.length() + 1 );
+
+    job = new uv_work_t;
+    job->data = request;
+
+    uv_queue_work( uv_default_loop(), job, async_open, async_open_after );
 
 
-
-    ShapeHandle* obj = ObjectWrap::Unwrap<ShapeHandle>(args.This());
-    return scope.Close(Boolean::New(true));
+    //
+    // may entirely do away with this being a class
+    // 
+    // ShapeHandle* obj = ObjectWrap::Unwrap<ShapeHandle>(args.This());
+    // return scope.Close(Boolean::New(true));
+    //
+    return Undefined();
 
 }

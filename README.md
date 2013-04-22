@@ -1,5 +1,7 @@
 
-Node bindings for [shapelib.maptools.org](http://shapelib.maptools.org/)'s implementation of the [ESRI](http://www.esri.com/) shapefile specification.
+Node bindings for [shapelib.maptools.org](http://shapelib.maptools.org/)'s implementation of the [ESRI](http://www.esri.com/) shapefile specification with [libuv](https://github.com/joyent/libuv) for async file access and decode.
+
+
 
 ### First
 
