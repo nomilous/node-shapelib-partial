@@ -5,26 +5,28 @@
 #include <v8.h>
 #include <string>
 #include <stdlib.h>
-#include <node_buffer.h>
 #include "shapefil.h"
 
 using namespace std;
 using namespace node;
 using namespace v8;
 
-struct error_struct {
-
-  int code;
-  string message;
-
-};
-
 class ShapeHandle : public node::ObjectWrap {
 
     public:
 
         static void Init( Handle<Object> exports );
-        void SHPOpen( error_struct * error, char * filename );
+
+        void setFilename(string filename);
+        void setCallback(Persistent<Function>);
+        void setError(int code, string message);
+
+        string getFilename();
+        Persistent<Function> getCallback();
+        int getErrorCode();
+        string getErrorMessage();
+
+        void SHPOpen();
 
     private:
 
@@ -35,15 +37,10 @@ class ShapeHandle : public node::ObjectWrap {
         static Handle<Value> OpenAsync(const Arguments& args);
 
         SHPHandle shapeHandle;
-
-};
-
-struct async_open_request {
-
-    Persistent<Function> callback;
-    ShapeHandle * handle;
-    error_struct * error;
-    char filename[1]; // gets mallocd up to size
+        string filename;
+        Persistent<Function> callback;
+        int errorCode;
+        string errorMessage;
 
 };
 

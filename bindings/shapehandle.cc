@@ -1,44 +1,30 @@
 #include "shapehandle.h"
 
-void async_open(uv_work_t *job) {
+void async_open(uv_work_t * job) {
 
-    //
-    // open the shapefile and load shapeInfo
-    //
-
-    async_open_request *request =     
-        (struct async_open_request *) job->data;
-
-    ShapeHandle *handle = (ShapeHandle *) request->handle;
-    handle->SHPOpen( request->error, request->filename );
-
-
-    //printf("async_open(   '''''%s'''''    )\n", request->filename);
+    ShapeHandle * handle = (ShapeHandle *) job->data;
+    handle->SHPOpen();
 
 }
 
 
 void async_open_after(uv_work_t * job, int) {
 
-
     HandleScope scope;
-
-    async_open_request *request =     
-        (struct async_open_request *) job->data;
 
     const unsigned argc = 2;
     Handle<Value> argv[argc];
-    
+
     argv[0] = Undefined();
     argv[1] = Undefined();
 
-    if( request->error->code > 0 ) {
+    ShapeHandle * handle = (ShapeHandle *) job->data;
 
-        argv[0] = Exception::Error(String::New(request->error->message.c_str()));
-
+    if( handle->getErrorCode() > 0 ) {
+        argv[0] = Exception::Error(String::New(handle->getErrorMessage().c_str()));
     }
 
-    request->callback->Call( Context::GetCurrent()->Global(), argc, argv );
+    handle->getCallback()->Call( Context::GetCurrent()->Global(), argc, argv );
 
 
     //
@@ -77,18 +63,46 @@ ShapeHandle::~ShapeHandle() {
 };
 
 
-void ShapeHandle::SHPOpen( error_struct * error, char * filename ) {
+void ShapeHandle::SHPOpen() {
 
-    shapeHandle = ::SHPOpen(filename, "rb");
+    shapeHandle = ::SHPOpen(filename.c_str(), "rb");
 
     if( shapeHandle == NULL ) {
-
-        error->code = 1;
-        error->message = "Unable to open shape file.";
+        errorCode = 1;
+        errorMessage = "Unable to open shape file.";
         return;
-
     }
 
+};
+
+
+void ShapeHandle::setFilename(string filename) {
+    this->filename = filename;
+};
+
+string ShapeHandle::getFilename() {
+    return filename;
+};
+
+void ShapeHandle::setCallback(Persistent<Function> callback) {
+    this->callback = callback;
+};
+
+Persistent<Function> ShapeHandle::getCallback() {
+    return callback;
+};
+
+void ShapeHandle::setError(int code, string message) {
+    errorCode = code;
+    errorMessage = message;
+};
+
+int ShapeHandle::getErrorCode() {
+    return errorCode;
+};
+
+string ShapeHandle::getErrorMessage() {
+        return errorMessage;
 };
 
 void ShapeHandle::Init(Handle<Object> exports) {
@@ -122,7 +136,6 @@ Handle<Value> ShapeHandle::New(const Arguments& args) {
 Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
 
     HandleScope scope;
-    async_open_request * request;
     uv_work_t * job;
 
     if (args.Length() != 2) {
@@ -132,34 +145,17 @@ Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
         );
     }
 
-    //
-    // assemble request parameters 
-    //
+    ShapeHandle* obj = ObjectWrap::Unwrap<ShapeHandle>(args.This());
 
-    String::Utf8Value filename(args[0]);
-    request = (async_open_request *) malloc(
-        sizeof(struct async_open_request) + filename.length() + 1
-    );
-    request->callback = Persistent<Function>::New(
-        Local<Function>::Cast(args[1])
-    );
-    request->error = new error_struct;
-    request->error->code = 0;
-    request->handle = ObjectWrap::Unwrap<ShapeHandle>(args.This());
-    strncpy( request->filename, *filename, filename.length() + 1 );
+    obj->setFilename(*String::Utf8Value(args[0]->ToString()));
+    obj->setCallback(Persistent<Function>::New(Local<Function>::Cast(args[1])));
+    obj->setError(0,"");
 
     job = new uv_work_t;
-    job->data = request;
+    job->data = obj;
 
     uv_queue_work( uv_default_loop(), job, async_open, async_open_after );
 
-
-    //
-    // may entirely do away with this being a class
-    // 
-    // ShapeHandle* obj = ObjectWrap::Unwrap<ShapeHandle>(args.This());
-    // return scope.Close(Boolean::New(true));
-    //
     return Undefined();
 
 }
