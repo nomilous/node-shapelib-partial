@@ -3,7 +3,9 @@
 void async_open(uv_work_t * job) {
 
     ShapeHandle * handle = (ShapeHandle *) job->data;
-    handle->SHPOpen();
+    
+    if( ! handle->SHPOpen() ) { return; }
+    if( ! handle->SHPGetInfo() ) { return; }
 
 }
 
@@ -22,10 +24,42 @@ void async_open_after(uv_work_t * job, int) {
 
     if( handle->getErrorCode() > 0 ) {
         argv[0] = Exception::Error(String::New(handle->getErrorMessage().c_str()));
+    } else {
+
+        Local<Object> obj = Object::New();
+        obj->Set(
+            String::NewSymbol("entities"), 
+            Number::New(handle->getShapeEntities())
+        );
+        obj->Set(
+            String::NewSymbol("type"), 
+            Number::New(handle->getShapeType())
+        );
+
+        Local<Array> minBound = Array::New(4);
+        Local<Array> maxBound = Array::New(4);
+
+        int i;
+        for( i = 0; i < 4; i++) {
+            minBound->Set(Number::New(i), Number::New( handle->getShapeMinBound()[i] ));
+            maxBound->Set(Number::New(i), Number::New( handle->getShapeMaxBound()[i] ));
+        }
+
+        obj->Set(
+            String::NewSymbol("minBound"), 
+            minBound
+        );
+
+        obj->Set(
+            String::NewSymbol("maxBound"), 
+            maxBound
+        );
+
+        argv[1] = obj;
+
     }
 
     handle->getCallback()->Call( Context::GetCurrent()->Global(), argc, argv );
-
 
     //
     // and free() resources
@@ -33,48 +67,51 @@ void async_open_after(uv_work_t * job, int) {
 
 }
 
-ShapeHandle::ShapeHandle() {
+ShapeHandle::ShapeHandle() {};
+ShapeHandle::~ShapeHandle() {};
 
-    printf("ShapeHandle::ShapeHandle()\n");
-    
-    //
-    // pending push into async operation with .open( <shapefile>, callback )
-    //
-
-    // int shapeEntityCount;
-    // int shapeType;
-    // double minBounds[4];
-    // double maxBounds[4];
-
-    // SHPHandle shapeHandle;
-
-    // shapeHandle = SHPOpen( "./deps/huh/ne_110m_land", "rb" );
-    // SHPGetInfo( shapeHandle, &shapeEntityCount, &shapeType, minBounds, maxBounds );
-    // printf( "entities: %i, type: %i\n", shapeEntityCount, shapeType );
-    // printf( "min bounds: %f, %f, %f\n", minBounds[0], minBounds[1], minBounds[2] );
-    // printf( "max bounds: %f, %f, %f\n", maxBounds[0], maxBounds[1], maxBounds[2] );
-
-    // SHPClose( shapeHandle );
-
-};
-
-ShapeHandle::~ShapeHandle() {
-    printf("ShapeHandle::~ShapeHandle()\n");
-};
-
-
-void ShapeHandle::SHPOpen() {
+bool ShapeHandle::SHPOpen() {
 
     shapeHandle = ::SHPOpen(filename.c_str(), "rb");
 
     if( shapeHandle == NULL ) {
         errorCode = 1;
         errorMessage = "Unable to open shape file.";
-        return;
+        return false;
     }
+
+    return true;
 
 };
 
+bool ShapeHandle::SHPGetInfo() {
+
+    ::SHPGetInfo(shapeHandle, 
+        &shapeEntities, 
+        &shapeType,
+        shapeMinBound, 
+        shapeMaxBound
+    );
+
+    return true;
+
+};
+
+int ShapeHandle::getShapeEntities() {
+    return shapeEntities;
+};
+
+int ShapeHandle::getShapeType() {
+    return shapeType;
+};
+
+double * ShapeHandle::getShapeMinBound() {
+    return shapeMinBound;
+};
+
+double * ShapeHandle::getShapeMaxBound() {
+    return shapeMaxBound;
+};
 
 void ShapeHandle::setFilename(string filename) {
     this->filename = filename;
@@ -107,7 +144,7 @@ string ShapeHandle::getErrorMessage() {
 
 void ShapeHandle::Init(Handle<Object> exports) {
 
-    printf("ShapeHandle::Init()\n");
+    //printf("ShapeHandle::Init()\n");
     Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
 
     tpl->SetClassName(String::NewSymbol("ShapeHandle"));
@@ -125,7 +162,7 @@ void ShapeHandle::Init(Handle<Object> exports) {
 
 Handle<Value> ShapeHandle::New(const Arguments& args) {
 
-    printf("ShapeHandle::New()\n");
+    //printf("ShapeHandle::New()\n");
     HandleScope scope;
     ShapeHandle* obj = new ShapeHandle();
     obj->Wrap(args.This());

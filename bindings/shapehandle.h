@@ -11,7 +11,7 @@ using namespace std;
 using namespace node;
 using namespace v8;
 
-class ShapeHandle : public node::ObjectWrap {
+class ShapeHandle : public ObjectWrap {
 
     public:
 
@@ -26,7 +26,12 @@ class ShapeHandle : public node::ObjectWrap {
         int getErrorCode();
         string getErrorMessage();
 
-        void SHPOpen();
+        bool SHPOpen();
+        bool SHPGetInfo();
+        int getShapeEntities();
+        int getShapeType();
+        double * getShapeMinBound();
+        double * getShapeMaxBound();
 
     private:
 
@@ -37,10 +42,17 @@ class ShapeHandle : public node::ObjectWrap {
         static Handle<Value> OpenAsync(const Arguments& args);
 
         SHPHandle shapeHandle;
+        int shapeEntities;
+        int shapeType;
+        double shapeMinBound[4];
+        double shapeMaxBound[4];
+
         string filename;
         Persistent<Function> callback;
         int errorCode;
         string errorMessage;
+
+
 
 };
 
