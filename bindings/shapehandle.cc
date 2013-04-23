@@ -9,18 +9,54 @@ void async_open(uv_work_t *job) {
     async_open_request *request =     
         (struct async_open_request *) job->data;
 
-    printf("async_open(   '''''%s'''''    )\n", request->filename);
+    ShapeHandle *handle = (ShapeHandle *) request->handle;
+    handle->SHPOpen( request->error, request->filename );
+
+
+    //printf("async_open(   '''''%s'''''    )\n", request->filename);
 
 }
 
 
 void async_open_after(uv_work_t * job, int) {
 
-    //
-    // callback the shape info and free() resources
-    //
 
-    printf("async_open_after()");
+    HandleScope scope;
+
+    async_open_request *request =     
+        (struct async_open_request *) job->data;
+
+    const unsigned argc = 2;
+    Handle<Value> argv[argc];
+    
+    argv[0] = Undefined();
+    argv[1] = Undefined();
+
+    if( request->error->code > 0 ) {
+
+        Local<Object> error = Object::New();
+
+        error->Set( 
+            String::NewSymbol("ERRNO"),  
+            Integer::New(request->error->code)
+        );
+
+        error->Set( 
+            String::NewSymbol("Message"),  
+            String::New(request->error->message.c_str())
+        );
+
+        argv[0] = error;
+
+    }
+
+
+    request->callback->Call( Context::GetCurrent()->Global(), argc, argv );
+
+
+    //
+    // and free() resources
+    //
 
 }
 
@@ -51,6 +87,21 @@ ShapeHandle::ShapeHandle() {
 
 ShapeHandle::~ShapeHandle() {
     printf("ShapeHandle::~ShapeHandle()\n");
+};
+
+
+void ShapeHandle::SHPOpen( error_struct * error, char * filename ) {
+
+    shapeHandle = ::SHPOpen(filename, "rb");
+
+    if( shapeHandle == NULL ) {
+
+        error->code = 1;
+        error->message = "Unable to open shape file.";
+        return;
+
+    }
+
 };
 
 void ShapeHandle::Init(Handle<Object> exports) {
@@ -105,6 +156,9 @@ Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
     request->callback = Persistent<Function>::New(
         Local<Function>::Cast(args[1])
     );
+    request->error = new error_struct;
+    request->error->code = 0;
+    request->handle = ObjectWrap::Unwrap<ShapeHandle>(args.This());
     strncpy( request->filename, *filename, filename.length() + 1 );
 
     job = new uv_work_t;
