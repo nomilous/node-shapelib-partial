@@ -34,22 +34,9 @@ void async_open_after(uv_work_t * job, int) {
 
     if( request->error->code > 0 ) {
 
-        Local<Object> error = Object::New();
-
-        error->Set( 
-            String::NewSymbol("ERRNO"),  
-            Integer::New(request->error->code)
-        );
-
-        error->Set( 
-            String::NewSymbol("Message"),  
-            String::New(request->error->message.c_str())
-        );
-
-        argv[0] = error;
+        argv[0] = Exception::Error(String::New(request->error->message.c_str()));
 
     }
-
 
     request->callback->Call( Context::GetCurrent()->Global(), argc, argv );
 

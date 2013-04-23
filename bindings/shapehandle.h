@@ -8,8 +8,6 @@
 #include <node_buffer.h>
 #include "shapefil.h"
 
-#define THROW_ERROR_EXCEPTION(x) ThrowException(Exception::Error(String::New(x)))
-
 using namespace std;
 using namespace node;
 using namespace v8;
