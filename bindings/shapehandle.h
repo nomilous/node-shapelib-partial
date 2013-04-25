@@ -62,4 +62,7 @@ class ShapeHandle : public ObjectWrap {
 void async_open(uv_work_t * job);
 void async_open_after(uv_work_t * job, int);
 
+void async_read_object(uv_work_t * job);
+void async_read_object_after(uv_work_t * job, int);
+
 #endif

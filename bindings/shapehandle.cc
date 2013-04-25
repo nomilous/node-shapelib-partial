@@ -10,6 +10,8 @@ void async_open(uv_work_t * job) {
 }
 
 
+
+
 void async_open_after(uv_work_t * job, int) {
 
     HandleScope scope;
@@ -65,7 +67,25 @@ void async_open_after(uv_work_t * job, int) {
     // and free() resources
     //
 
-}
+};
+
+void async_read_object(uv_work_t * job) {
+    printf("read\n");
+    sleep(1);
+
+    // looks like the async worker runs 4 at a time 
+    // each will be reading data to/fro the same shapeHandl 
+    // that will likely present an issue.
+
+    // UM.
+
+    // easier to prevent the 
+
+};
+
+void async_read_object_after(uv_work_t * job, int) {
+    printf("done\n");
+};
 
 ShapeHandle::ShapeHandle() {};
 ShapeHandle::~ShapeHandle() {};
@@ -162,7 +182,7 @@ void ShapeHandle::Init(Handle<Object> exports) {
     Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
     exports->Set(String::NewSymbol("ShapeHandle"), constructor);
 
-}
+};
 
 Handle<Value> ShapeHandle::New(const Arguments& args) {
 
@@ -172,7 +192,7 @@ Handle<Value> ShapeHandle::New(const Arguments& args) {
     obj->Wrap(args.This());
     return args.This();
 
-}
+};
 
 Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
 
@@ -182,7 +202,7 @@ Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
     if (args.Length() != 2) {
         return ThrowException(
             Exception::Error(String::New(
-                "Expected ShapeHandle::Open(<filename>,<callback>)"))
+                "Expected ShapeHandle::OpenAsync(<filename>,<callback>)"))
         );
     }
 
@@ -199,11 +219,24 @@ Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
 
     return Undefined();
 
-}
+};
 
 Handle<Value> ShapeHandle::ReadObjectAsync(const Arguments& args) {
 
-     HandleScope scope;
-     return Undefined();
+    HandleScope scope;
+    uv_work_t * job;
 
-}
+    if (args.Length() != 2) {
+        return ThrowException(
+            Exception::Error(String::New(
+                "Expected ShapeHandle::ReadObjectAsync(<shapeid>,<callback>)"))
+        );
+    }
+
+    ShapeHandle* obj = ObjectWrap::Unwrap<ShapeHandle>(args.This());
+    job = new uv_work_t;
+    job->data = obj;
+    uv_queue_work( uv_default_loop(), job, async_read_object, async_read_object_after );
+    return Undefined();
+
+};
