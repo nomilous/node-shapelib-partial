@@ -9,9 +9,6 @@ void async_open(uv_work_t * job) {
 
 }
 
-
-
-
 void async_open_after(uv_work_t * job, int) {
 
     HandleScope scope;
@@ -64,27 +61,63 @@ void async_open_after(uv_work_t * job, int) {
     handle->getCallback()->Call( Context::GetCurrent()->Global(), argc, argv );
 
     //
-    // and free() resources
+    printf("free() resources");
     //
 
 };
 
 void async_read_object(uv_work_t * job) {
-    printf("read\n");
-    sleep(1);
 
+    sleep(1);
+    printf("async_read_object\n");
+
+    
     // looks like the async worker runs 4 at a time 
     // each will be reading data to/fro the same shapeHandl 
     // that will likely present an issue.
 
     // UM.
 
-    // easier to prevent the 
+    // easier to prevent the concurrency problem in the js side
+
+    ShapeHandle * handle = (ShapeHandle *) job->data;
+
+    if( ! handle->SHPReadObject() ) { return; }
 
 };
 
 void async_read_object_after(uv_work_t * job, int) {
-    printf("done\n");
+
+    const unsigned argc = 2;
+    Handle<Value> argv[argc];
+
+    argv[0] = Undefined();
+    argv[1] = Undefined();
+
+    ShapeHandle * handle = (ShapeHandle *) job->data;
+
+    if( handle->getErrorCode() > 0 ) {
+        argv[0] = Exception::Error(String::New(handle->getErrorMessage().c_str()));
+    } else {
+
+        Local<Object> obj = Object::New();
+
+        obj->Set(
+            String::NewSymbol("type"), 
+            Number::New(handle->getShapeType())
+        );
+
+        obj->Set(
+            String::NewSymbol("pending array of vertices"), 
+            Number::New( 1 )
+        );
+
+        argv[1] = obj;
+
+    }
+
+    handle->getCallback()->Call( Context::GetCurrent()->Global(), argc, argv );
+    printf("free() resources");
 };
 
 ShapeHandle::ShapeHandle() {};
@@ -112,6 +145,20 @@ bool ShapeHandle::SHPGetInfo() {
         shapeMinBound, 
         shapeMaxBound
     );
+
+    return true;
+
+};
+
+bool ShapeHandle::SHPReadObject() {
+
+    shape = ::SHPReadObject( shapeHandle, shapeId );
+
+    if( shape == NULL ) {
+        errorCode = 2;
+        errorMessage = "Unable to read shape object.";
+        return false;
+    }
 
     return true;
 
@@ -161,6 +208,10 @@ int ShapeHandle::getErrorCode() {
 string ShapeHandle::getErrorMessage() {
         return errorMessage;
 };
+
+void ShapeHandle::setShapeId(int32_t id) {
+    shapeId = id;
+}
 
 void ShapeHandle::Init(Handle<Object> exports) {
 
@@ -234,6 +285,10 @@ Handle<Value> ShapeHandle::ReadObjectAsync(const Arguments& args) {
     }
 
     ShapeHandle* obj = ObjectWrap::Unwrap<ShapeHandle>(args.This());
+
+    obj->setShapeId(args[0]->ToInt32()->Value());
+
+
     job = new uv_work_t;
     job->data = obj;
     uv_queue_work( uv_default_loop(), job, async_read_object, async_read_object_after );

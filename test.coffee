@@ -7,18 +7,28 @@ shapeHandle = new ShapeHandle()
 
 shapeHandle.open './deps/huh/ne_110m_land', (err, shapeInfo) ->
     
-    console.log 'open:', 
+    console.log open:
+
         error: err
         shapeInfo: shapeInfo
 
 
-    for id in [0..shapeInfo.entities-1]
+    # 
+    # for id in [0..shapeInfo.entities-1]
+    #  
+    # internal shared handle means no support for concurrent async
+    # read from the shapeHandle, use a waterfall this side of the
+    # binding.  
+    # 
 
-        shapeHandle.readObject id, (err, shape) ->
+    shapeHandle.readObject 0, (err, shape) ->
 
-            console.log 'readObject:',
-                error: err
-                shape: shape
+        console.log readObject:
+            
+            error: err
+            shape: shape
+
+    
 
 
 #shapeHandle.close()
