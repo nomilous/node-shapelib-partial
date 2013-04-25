@@ -7,11 +7,20 @@ shapeHandle = new ShapeHandle()
 
 shapeHandle.open './deps/huh/ne_110m_land', (err, shapeInfo) ->
     
-    #console.log 'error:', err
-    console.log shapeInfo
+    console.log 'open:', 
+        error: err
+        shapeInfo: shapeInfo
 
 
-#shapeHandle.readObject id, (err, callback) ->
+    for id in [0..shapeInfo.entities-1]
+
+        shapeHandle.readObject id, (err, shape) ->
+
+            console.log 'readObject:',
+                error: err
+                shape: shape
+
+
 #shapeHandle.close()
 #shapeHandle.openSync
 #shapeHandle.readObjectSync

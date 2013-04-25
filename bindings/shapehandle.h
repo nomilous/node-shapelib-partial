@@ -28,6 +28,8 @@ class ShapeHandle : public ObjectWrap {
 
         bool SHPOpen();
         bool SHPGetInfo();
+        bool SHPReadObject();
+
         int getShapeEntities();
         int getShapeType();
         double * getShapeMinBound();
@@ -40,6 +42,7 @@ class ShapeHandle : public ObjectWrap {
 
         static Handle<Value> New(const Arguments& args);
         static Handle<Value> OpenAsync(const Arguments& args);
+        static Handle<Value> ReadObjectAsync(const Arguments& args);
 
         SHPHandle shapeHandle;
         int shapeEntities;

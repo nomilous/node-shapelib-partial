@@ -154,6 +154,10 @@ void ShapeHandle::Init(Handle<Object> exports) {
         String::NewSymbol("open"),
         FunctionTemplate::New(OpenAsync)->GetFunction()
     );
+    tpl->PrototypeTemplate()->Set(
+        String::NewSymbol("readObject"),
+        FunctionTemplate::New(ReadObjectAsync)->GetFunction()
+    );
 
     Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
     exports->Set(String::NewSymbol("ShapeHandle"), constructor);
@@ -194,5 +198,12 @@ Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
     uv_queue_work( uv_default_loop(), job, async_open, async_open_after );
 
     return Undefined();
+
+}
+
+Handle<Value> ShapeHandle::ReadObjectAsync(const Arguments& args) {
+
+     HandleScope scope;
+     return Undefined();
 
 }
