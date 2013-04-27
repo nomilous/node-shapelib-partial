@@ -3,58 +3,19 @@
 ShapeObject::ShapeObject() {};
 ShapeObject::~ShapeObject() {};
 
-bool ShapeObject::loadShape(SHPHandle shapeHandle, int shapeId) {
+bool ShapeObject::loadShapeHandle(SHPHandle shapeHandle, int shapeId) {
 
     id = shapeId;
     shape = ::SHPReadObject(shapeHandle, shapeId);
     if( shape == NULL) return false;
+    return true;
 
 };
 
-bool ShapeObject::loadRecord(DBFHandle dbfHandle, int recordId, int fieldCount) {
+bool ShapeObject::loadRecordHandle(DBFHandle dbfHandle, int recordId, int fieldCount) {
 
-    int i;
-
-    fields = new ObjectField[fieldCount];
+    this->dbfHandle = dbfHandle;
     this->fieldCount = fieldCount;
-
-    for(i = 0; i < fieldCount; i++) {
-
-        int width;
-        int decimals;
-
-
-        DBFFieldType type = DBFGetFieldInfo(dbfHandle, i, fields[i].name, &width, &decimals);
-
-        printf("\n\nfield no:%i, name:%s, width:%i, decimals:%i\n", i, fields[i].name, width, decimals);
-
-        if( DBFIsAttributeNULL( dbfHandle, recordId, i ) ) continue;
-
-        fields[i].type  = type;
-
-        switch( type ) {
-
-            case FTInteger:
-
-                fields[i].intValue = DBFReadIntegerAttribute(dbfHandle, recordId, i);
-                break;
-
-            case FTDouble:
-
-                fields[i].doubleValue = DBFReadDoubleAttribute(dbfHandle, recordId, i);
-                break;
-
-            case FTString:
-
-                char * value = (char *) DBFReadStringAttribute(dbfHandle, recordId, i);
-                fields[i].stringValue = new char[width + 1];
-                strncpy(fields[i].stringValue, value, width + 1);
-                break;
-
-        }
-        
-    }
-
     return true;
 
 };
@@ -94,7 +55,6 @@ Local<Array> ShapeObject::getParts() {
 
     HandleScope scope;
 
-    printf("free parts resources\n");
     return scope.Close( Array::New() );
 
 };
@@ -104,46 +64,52 @@ Local<Object> ShapeObject::getFields() {
     HandleScope scope;
 
     Local<Object> obj = Object::New();
-    int i;
-    for( i = 0; i < fieldCount; i++ ) {
 
-        switch( fields[i].type ) {
+    if(dbfHandle != NULL) {
 
-            case FTString:
+        char name[12];
+        int width;
+        int decimals;
+        int i;
 
-                obj->Set(
+        for( i = 0; i < fieldCount; i++ ) {
 
-                    String::NewSymbol(fields[i].name),
-                    String::New(fields[i].stringValue)
+            switch( DBFGetFieldInfo(dbfHandle, i, name, &width, &decimals) ) {
 
-                );
-                break;
+                case FTString:
 
-            case FTInteger:
+                    obj->Set(
 
-                obj->Set(
+                        String::NewSymbol(name),
+                        String::New((char *) DBFReadStringAttribute(dbfHandle, id, i))
 
-                    String::NewSymbol(fields[i].name),
-                    Number::New(fields[i].intValue)
+                    );
+                    break;
 
-                );
-                break;
+                case FTInteger:
 
-            case FTDouble:
+                    obj->Set(
 
-                obj->Set(
+                        String::NewSymbol(name),
+                        Number::New(DBFReadIntegerAttribute(dbfHandle, id, i))
 
-                    String::NewSymbol(fields[i].name),
-                    Number::New(fields[i].doubleValue)
-                    
-                );
-                break;
+                    );
+                    break;
+
+                case FTDouble:
+
+                    obj->Set(
+
+                        String::NewSymbol(name),
+                        Number::New(DBFReadDoubleAttribute(dbfHandle, id, i))
+
+                    );
+                    break;
+            }
         }
     }
 
-    printf("free fields resources\n");
     return scope.Close( obj );
-    //return obj;
 
 };
 

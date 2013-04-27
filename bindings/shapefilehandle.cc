@@ -228,11 +228,11 @@ bool ShapeFileHandle::ReadShapeObjects() {
         //   from the file.
         //
 
-        shapeObjects[i].loadShape(shapeHandle, i);
+        shapeObjects[i].loadShapeHandle(shapeHandle, i);
         if( dbfHandle != NULL ) { 
             if( dbfRecordCount == shapeCount ) {
 
-                shapeObjects[i].loadRecord(dbfHandle, i, dbfFieldCount);
+                shapeObjects[i].loadRecordHandle(dbfHandle, i, dbfFieldCount);
 
             }
         }
