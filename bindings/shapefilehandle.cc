@@ -88,8 +88,96 @@ void async_open_after(uv_work_t * request, int) {
     
 };
 
-ShapeFileHandle::ShapeFileHandle() {};
-ShapeFileHandle::~ShapeFileHandle() {};
+
+void ShapeFileHandle::Init(Handle<Object> exports) {
+
+    //
+    // Assemble and export the v8 JS function prototype 
+    //
+
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+
+    tpl->SetClassName(String::NewSymbol("ShapeFile"));
+    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+    tpl->PrototypeTemplate()->Set(
+        String::NewSymbol("open"),
+        FunctionTemplate::New(OpenAsync)->GetFunction()
+    );
+
+    Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
+    exports->Set(String::NewSymbol("ShapeFile"), constructor);
+
+};
+
+Handle<Value> ShapeFileHandle::New(const Arguments& args) {
+
+    //
+    // JS prototype constructor
+    // 
+    //    -  wraps *this to propagate context into exported prototype functions
+    //
+
+    HandleScope scope;
+    ShapeFileHandle* obj = new ShapeFileHandle();
+    obj->Wrap(args.This());
+    return args.This();
+
+};
+
+
+Handle<Value> ShapeFileHandle::OpenAsync(const Arguments& args) {
+
+    //
+    // JS exported prototype function 
+    // 
+    //    - un-wrap *this to restore context
+    //    - build a request (with the context) to post onto async uv_queue
+    //
+
+    HandleScope scope;
+    uv_work_t * request;
+
+    if (args.Length() != 2) {
+        return ThrowException(
+            Exception::Error(String::New(
+                "Expected ShapeFileHandle::OpenAsync(<filename>,<callback>)"))
+        );
+    }
+
+    ShapeFileHandle * obj = ObjectWrap::Unwrap<ShapeFileHandle>(args.This());
+
+    obj->setFilename(
+
+        //
+        // arg1 as the shape filename
+        //
+
+        *String::Utf8Value(args[0]->ToString())
+
+    );
+
+    obj->setCallback(
+
+        //
+        // arg2 as the callback `function(error, shapes) { };`
+        // 
+
+        Persistent<Function>::New(Local<Function>::Cast(args[1]))
+
+    );
+
+    obj->setError(0,"");
+
+    request = new uv_work_t;
+    request->data = obj;
+
+    uv_queue_work( uv_default_loop(), request, async_open, async_open_after );
+
+    return Undefined();
+
+};
+
 
 bool ShapeFileHandle::SHPOpen() {
 
@@ -137,6 +225,9 @@ bool ShapeFileHandle::SHPReadObjects() {
 
 };
 
+ShapeFileHandle::ShapeFileHandle() {};
+ShapeFileHandle::~ShapeFileHandle() {};
+
 int ShapeFileHandle::getShapeCount() {
     return shapeCount;
 };
@@ -180,92 +271,4 @@ int ShapeFileHandle::getErrorCode() {
 
 string ShapeFileHandle::getErrorMessage() {
         return errorMessage;
-};
-
-void ShapeFileHandle::Init(Handle<Object> exports) {
-
-    //
-    // Assemble and export the v8 JS function prototype 
-    //
-
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-
-    tpl->SetClassName(String::NewSymbol("ShapeFile"));
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
-
-    tpl->PrototypeTemplate()->Set(
-        String::NewSymbol("open"),
-        FunctionTemplate::New(OpenAsync)->GetFunction()
-    );
-
-    Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
-    exports->Set(String::NewSymbol("ShapeFile"), constructor);
-
-};
-
-Handle<Value> ShapeFileHandle::New(const Arguments& args) {
-
-    //
-    // JS prototype constructor
-    // 
-    //    -  wraps *this to propagate context into exported prototype functions
-    //
-
-    HandleScope scope;
-    ShapeFileHandle* obj = new ShapeFileHandle();
-    obj->Wrap(args.This());
-    return args.This();
-
-};
-
-Handle<Value> ShapeFileHandle::OpenAsync(const Arguments& args) {
-
-    //
-    // JS prototype function 
-    // 
-    //    - un-wrap *this to restore context
-    //    - build a request (with the context) to post onto async uv_queue
-    //
-
-    HandleScope scope;
-    uv_work_t * request;
-
-    if (args.Length() != 2) {
-        return ThrowException(
-            Exception::Error(String::New(
-                "Expected ShapeFileHandle::OpenAsync(<filename>,<callback>)"))
-        );
-    }
-
-    ShapeFileHandle * obj = ObjectWrap::Unwrap<ShapeFileHandle>(args.This());
-
-    obj->setFilename(
-
-        //
-        // arg1 as the shape filename
-        //
-
-        *String::Utf8Value(args[0]->ToString())
-
-    );
-
-    obj->setCallback(
-
-        //
-        // arg2 as the callback `function(error, shapes) { };`
-        // 
-
-        Persistent<Function>::New(Local<Function>::Cast(args[1]))
-
-    );
-
-    obj->setError(0,"");
-
-    request = new uv_work_t;
-    request->data = obj;
-
-    uv_queue_work( uv_default_loop(), request, async_open, async_open_after );
-
-    return Undefined();
-
 };
