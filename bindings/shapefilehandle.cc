@@ -9,8 +9,8 @@ void async_open(uv_work_t * request) {
 
     ShapeFileHandle * handle = (ShapeFileHandle *) request->data;
     
-    if( ! handle->SHPOpen() ) { return; }
-    if( ! handle->SHPReadObjects() ) { return; }
+    if( ! handle->Open() ) { return; }
+    if( ! handle->ReadShapeObjects() ) { return; }
 
 }
 
@@ -69,7 +69,7 @@ void async_open_after(uv_work_t * request, int) {
 
         obj->Set(
             String::NewSymbol("shapes"),
-            Undefined()
+            handle->getShapeObjects()
         );
 
         argv[1] = obj;
@@ -179,7 +179,7 @@ Handle<Value> ShapeFileHandle::OpenAsync(const Arguments& args) {
 };
 
 
-bool ShapeFileHandle::SHPOpen() {
+bool ShapeFileHandle::Open() {
 
     shapeHandle = ::SHPOpen(filename.c_str(), "rb");
 
@@ -193,7 +193,7 @@ bool ShapeFileHandle::SHPOpen() {
 
 };
 
-bool ShapeFileHandle::SHPReadObjects() {
+bool ShapeFileHandle::ReadShapeObjects() {
 
     ::SHPGetInfo(shapeHandle, 
         &shapeCount, 
@@ -224,6 +224,17 @@ bool ShapeFileHandle::SHPReadObjects() {
     return true;
 
 };
+
+Local<Array> ShapeFileHandle::getShapeObjects() {
+
+    //
+    // return shape objects as v8 JS array 
+    // 
+
+    return Array::New(0);
+
+};
+
 
 ShapeFileHandle::ShapeFileHandle() {};
 ShapeFileHandle::~ShapeFileHandle() {};

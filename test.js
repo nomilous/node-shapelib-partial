@@ -5,11 +5,11 @@ ShapeFile = require('./build/Release/shapelib_bindings').ShapeFile;
 
 shapeFile = new ShapeFile();
 
-shapeFile.open('./deps/huh/ne_110m_land', function(err, shapes) {
+shapeFile.open('./deps/huh/ne_110m_land', function(err, shapeData) {
   return console.log({
     open: {
       error: err,
-      shapes: shapes
+      data: shapeData
     }
   });
 });

@@ -32,9 +32,10 @@ class ShapeFileHandle : public ObjectWrap {
         Persistent<Function> getCallback();
         int getErrorCode();
         string getErrorMessage();
+        Local<Array> getShapeObjects();
 
-        bool SHPOpen();
-        bool SHPReadObjects();
+        bool Open();
+        bool ReadShapeObjects();
 
         int getShapeCount();
         int getShapeType();
