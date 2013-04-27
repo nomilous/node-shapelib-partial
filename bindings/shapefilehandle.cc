@@ -181,12 +181,12 @@ Handle<Value> ShapeFileHandle::OpenAsync(const Arguments& args) {
 
 bool ShapeFileHandle::Open() {
 
-    shapeHandle = ::SHPOpen(filename.c_str(), "rb");
-    dbfHandle = ::DBFOpen(filename.c_str(), "rb");
+    shapeHandle = SHPOpen(filename.c_str(), "rb");
+    dbfHandle = DBFOpen(filename.c_str(), "rb");
 
     if( dbfHandle != NULL ) {
-        dbfFieldCount = ::DBFGetFieldCount(dbfHandle);
-        dbfRecordCount = ::DBFGetRecordCount(dbfHandle);
+        dbfFieldCount = DBFGetFieldCount(dbfHandle);
+        dbfRecordCount = DBFGetRecordCount(dbfHandle);
     }
 
     //
@@ -206,7 +206,7 @@ bool ShapeFileHandle::Open() {
 
 bool ShapeFileHandle::ReadShapeObjects() {
 
-    ::SHPGetInfo(shapeHandle, 
+    SHPGetInfo(shapeHandle, 
         &shapeCount, 
         &shapeType,
         shapeMinBound, 

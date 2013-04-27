@@ -14,6 +14,16 @@ Handle a shape.
 using namespace node;
 using namespace v8;
 
+struct ObjectField {
+
+    DBFFieldType type;
+    char name[12];
+    double doubleValue;
+    int intValue;
+    char * stringValue;
+
+};
+
 class ShapeObject {
 //class ShapeObject : public ObjectWrap {
 
@@ -31,6 +41,9 @@ class ShapeObject {
 
         int id;
         SHPObject * shape;
+
+        int fieldCount;
+        ObjectField * fields;
         Local<Array> getParts();
         Local<Object> getFields();
 
