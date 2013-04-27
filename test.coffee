@@ -7,31 +7,14 @@ shapeFile = new ShapeFile()
 
 shapeFile.open './deps/huh/ne_110m_land', (err, shapeData) ->
     
-    console.log open:
+    # console.log open:
 
-        error: err
-        data: shapeData
+    #     error: err
+    #     data: shapeData
 
-    console.log shapeData.shapes
-
-
-    # 
-    # for id in [0..shapeInfo.entities-1]
-    #  
-    # internal shared handle means no support for concurrent async
-    # read from the shapeHandle, use a waterfall this side of the
-    # binding.  
-    # 
-
-    # shapeFile.readObject 0, (err, shape) ->
-
-    #     console.log readObject:
-            
-    #         error: err
-    #         shape: shape
-
-    
-
+    for i in [0..shapeData.count-1]
+        
+        console.log shapeData.shapes[i]
 
 #shapeHandle.close()
 #shapeHandle.openSync

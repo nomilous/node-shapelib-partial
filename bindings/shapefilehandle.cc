@@ -187,9 +187,6 @@ bool ShapeFileHandle::Open() {
     if( dbfHandle != NULL ) {
         dbfFieldCount = ::DBFGetFieldCount(dbfHandle);
         dbfRecordCount = ::DBFGetRecordCount(dbfHandle);
-
-        printf("dbf fields:%i, records:%i", dbfFieldCount, dbfRecordCount);
-
     }
 
     //
@@ -232,10 +229,10 @@ bool ShapeFileHandle::ReadShapeObjects() {
         //
 
         shapeObjects[i].loadShape(shapeHandle, i);
-        if( dbfHandle == NULL ) { 
+        if( dbfHandle != NULL ) { 
             if( dbfRecordCount == shapeCount ) {
 
-                shapeObjects[i].loadRecord(dbfHandle, i);
+                shapeObjects[i].loadRecord(dbfHandle, i, dbfFieldCount);
 
             }
         }

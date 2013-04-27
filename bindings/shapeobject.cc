@@ -11,7 +11,19 @@ bool ShapeObject::loadShape(SHPHandle shapeHandle, int shapeId) {
 
 };
 
-bool ShapeObject::loadRecord(DBFHandle dbfHandle, int recordId) {
+bool ShapeObject::loadRecord(DBFHandle dbfHandle, int recordId, int fieldCount) {
+
+    int i;
+    for(i = 0; i < fieldCount; i++) {
+
+        
+
+
+        // load fields
+        
+
+
+    }
 
 };
 
@@ -24,6 +36,13 @@ Local<Object> ShapeObject::getObject() {
 
         String::NewSymbol("id"),
         Number::New(id)
+
+    );
+
+    jsShape->Set(
+
+        String::NewSymbol("fields"),
+        getFields()
 
     );
 
@@ -43,7 +62,14 @@ Local<Object> ShapeObject::getObject() {
 };
 
 
-Local<Object> ShapeObject::getParts() {
+Local<Array> ShapeObject::getParts() {
+
+    HandleScope scope;
+    return scope.Close( Array::New() );
+
+};
+
+Local<Object> ShapeObject::getFields() {
 
     HandleScope scope;
     return scope.Close( Object::New() );

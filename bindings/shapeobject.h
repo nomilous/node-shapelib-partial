@@ -23,15 +23,16 @@ class ShapeObject {
         ~ShapeObject();
 
         bool loadShape(SHPHandle shapeHandle, int shapeId);
-        bool loadRecord(DBFHandle dbfHandle, int shapeId);
-        
+        bool loadRecord(DBFHandle dbfHandle, int recordId, int fieldCount);
+
         Local<Object> getObject();
 
     private: 
 
         int id;
         SHPObject * shape;
-        Local<Object> getParts();
+        Local<Array> getParts();
+        Local<Object> getFields();
 
 };
 
