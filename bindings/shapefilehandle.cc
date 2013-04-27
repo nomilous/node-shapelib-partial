@@ -1,15 +1,27 @@
 #include "shapefilehandle.h"
 
-void async_open(uv_work_t * job) {
+void async_open(uv_work_t * request) {
 
-    ShapeFileHandle * handle = (ShapeFileHandle *) job->data;
+    //
+    // Running this async request (job) on the background
+    // uv_default_loop()
+    //
+
+    ShapeFileHandle * handle = (ShapeFileHandle *) request->data;
     
     if( ! handle->SHPOpen() ) { return; }
     if( ! handle->SHPReadObjects() ) { return; }
 
 }
 
-void async_open_after(uv_work_t * job, int) {
+void async_open_after(uv_work_t * request, int) {
+
+    //
+    // Upon completion of the request (job)
+    // 
+    //  - marshal the results into v8 JS objects and
+    //    post them to the callback  
+    // 
 
     HandleScope scope;
 
@@ -19,7 +31,7 @@ void async_open_after(uv_work_t * job, int) {
     argv[0] = Undefined();
     argv[1] = Undefined();
 
-    ShapeFileHandle * handle = (ShapeFileHandle *) job->data;
+    ShapeFileHandle * handle = (ShapeFileHandle *) request->data;
 
     if( handle->getErrorCode() > 0 ) {
         argv[0] = Exception::Error(String::New(handle->getErrorMessage().c_str()));
@@ -67,7 +79,7 @@ void async_open_after(uv_work_t * job, int) {
     TryCatch try_catch;
     handle->getCallback()->Call( Context::GetCurrent()->Global(), argc, argv );
     handle->getCallback().Dispose();
-    delete job;
+    delete request;
 
     if (try_catch.HasCaught())
         FatalException(try_catch);
@@ -172,7 +184,10 @@ string ShapeFileHandle::getErrorMessage() {
 
 void ShapeFileHandle::Init(Handle<Object> exports) {
 
-    //printf("ShapeHandle::Init()\n");
+    //
+    // Assemble and export the v8 JS function prototype 
+    //
+
     Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
 
     tpl->SetClassName(String::NewSymbol("ShapeFile"));
@@ -190,7 +205,12 @@ void ShapeFileHandle::Init(Handle<Object> exports) {
 
 Handle<Value> ShapeFileHandle::New(const Arguments& args) {
 
-    //printf("ShapeFileHandle::New()\n");
+    //
+    // JS prototype constructor
+    // 
+    //    -  wraps *this to propagate context into exported prototype functions
+    //
+
     HandleScope scope;
     ShapeFileHandle* obj = new ShapeFileHandle();
     obj->Wrap(args.This());
@@ -200,8 +220,15 @@ Handle<Value> ShapeFileHandle::New(const Arguments& args) {
 
 Handle<Value> ShapeFileHandle::OpenAsync(const Arguments& args) {
 
+    //
+    // JS prototype function 
+    // 
+    //    - un-wrap *this to restore context
+    //    - build a request (with the context) to post onto async uv_queue
+    //
+
     HandleScope scope;
-    uv_work_t * job;
+    uv_work_t * request;
 
     if (args.Length() != 2) {
         return ThrowException(
@@ -212,14 +239,32 @@ Handle<Value> ShapeFileHandle::OpenAsync(const Arguments& args) {
 
     ShapeFileHandle * obj = ObjectWrap::Unwrap<ShapeFileHandle>(args.This());
 
-    obj->setFilename(*String::Utf8Value(args[0]->ToString()));
-    obj->setCallback(Persistent<Function>::New(Local<Function>::Cast(args[1])));
+    obj->setFilename(
+
+        //
+        // arg1 as the shape filename
+        //
+
+        *String::Utf8Value(args[0]->ToString())
+
+    );
+
+    obj->setCallback(
+
+        //
+        // arg2 as the callback `function(error, shapes) { };`
+        // 
+
+        Persistent<Function>::New(Local<Function>::Cast(args[1]))
+
+    );
+
     obj->setError(0,"");
 
-    job = new uv_work_t;
-    job->data = obj;
+    request = new uv_work_t;
+    request->data = obj;
 
-    uv_queue_work( uv_default_loop(), job, async_open, async_open_after );
+    uv_queue_work( uv_default_loop(), request, async_open, async_open_after );
 
     return Undefined();
 
