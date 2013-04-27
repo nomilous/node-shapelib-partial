@@ -26,7 +26,6 @@ class ShapeFileHandle : public ObjectWrap {
         void setFilename(string filename);
         void setCallback(Persistent<Function>);
         void setError(int code, string message);
-        void setShapeId(int32_t id);
 
         string getFilename();
         Persistent<Function> getCallback();
@@ -49,14 +48,11 @@ class ShapeFileHandle : public ObjectWrap {
 
         static Handle<Value> New(const Arguments& args);
         static Handle<Value> OpenAsync(const Arguments& args);
-        static Handle<Value> ReadObjectAsync(const Arguments& args);
 
         SHPHandle shapeHandle;
-        SHPObject * shape;
 
         int shapeEntities;
         int shapeType;
-        int32_t shapeId;
         double shapeMinBound[4];
         double shapeMaxBound[4];
 
@@ -69,8 +65,5 @@ class ShapeFileHandle : public ObjectWrap {
 
 void async_open(uv_work_t * job);
 void async_open_after(uv_work_t * job, int);
-
-void async_read_object(uv_work_t * job);
-void async_read_object_after(uv_work_t * job, int);
 
 #endif

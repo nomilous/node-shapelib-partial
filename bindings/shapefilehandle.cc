@@ -72,60 +72,6 @@ void async_open_after(uv_work_t * job, int) {
 
 };
 
-void async_read_object(uv_work_t * job) {
-
-    sleep(1);
-    printf("async_read_object\n");
-
-    
-    // looks like the async worker runs 4 at a time 
-    // each will be reading data to/fro the same shapeHandl 
-    // that will likely present an issue.
-
-    // UM.
-
-    // easier to prevent the concurrency problem in the js side
-
-    ShapeFileHandle * handle = (ShapeFileHandle *) job->data;
-
-    if( ! handle->SHPReadObject() ) { return; }
-
-};
-
-void async_read_object_after(uv_work_t * job, int) {
-
-    const unsigned argc = 2;
-    Handle<Value> argv[argc];
-
-    argv[0] = Undefined();
-    argv[1] = Undefined();
-
-    ShapeFileHandle * handle = (ShapeFileHandle *) job->data;
-
-    if( handle->getErrorCode() > 0 ) {
-        argv[0] = Exception::Error(String::New(handle->getErrorMessage().c_str()));
-    } else {
-
-        Local<Object> obj = Object::New();
-
-        obj->Set(
-            String::NewSymbol("type"), 
-            Number::New(handle->getShapeType())
-        );
-
-        obj->Set(
-            String::NewSymbol("pending array of vertices"), 
-            Number::New( 1 )
-        );
-
-        argv[1] = obj;
-
-    }
-
-    handle->getCallback()->Call( Context::GetCurrent()->Global(), argc, argv );
-    printf("free() resources");
-};
-
 ShapeFileHandle::ShapeFileHandle() {};
 ShapeFileHandle::~ShapeFileHandle() {};
 
@@ -231,10 +177,6 @@ void ShapeFileHandle::Init(Handle<Object> exports) {
         String::NewSymbol("open"),
         FunctionTemplate::New(OpenAsync)->GetFunction()
     );
-    tpl->PrototypeTemplate()->Set(
-        String::NewSymbol("readObject"),
-        FunctionTemplate::New(ReadObjectAsync)->GetFunction()
-    );
 
     Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
     exports->Set(String::NewSymbol("ShapeFile"), constructor);
@@ -274,30 +216,6 @@ Handle<Value> ShapeFileHandle::OpenAsync(const Arguments& args) {
 
     uv_queue_work( uv_default_loop(), job, async_open, async_open_after );
 
-    return Undefined();
-
-};
-
-Handle<Value> ShapeFileHandle::ReadObjectAsync(const Arguments& args) {
-
-    HandleScope scope;
-    uv_work_t * job;
-
-    if (args.Length() != 2) {
-        return ThrowException(
-            Exception::Error(String::New(
-                "Expected ShapeFileHandle::ReadObjectAsync(<shapeid>,<callback>)"))
-        );
-    }
-
-    ShapeFileHandle* obj = ObjectWrap::Unwrap<ShapeFileHandle>(args.This());
-
-    obj->setShapeId(args[0]->ToInt32()->Value());
-
-
-    job = new uv_work_t;
-    job->data = obj;
-    uv_queue_work( uv_default_loop(), job, async_read_object, async_read_object_after );
     return Undefined();
 
 };

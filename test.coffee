@@ -5,12 +5,12 @@ ShapeFile = require('./build/Release/shapelib_bindings').ShapeFile
 shapeFile = new ShapeFile()
 
 
-shapeFile.open './deps/huh/ne_110m_land', (err, shapeInfo) ->
+shapeFile.open './deps/huh/ne_110m_land', (err, shapes) ->
     
     console.log open:
 
         error: err
-        shapeInfo: shapeInfo
+        shapes: shapes
 
 
     # 
@@ -21,12 +21,12 @@ shapeFile.open './deps/huh/ne_110m_land', (err, shapeInfo) ->
     # binding.  
     # 
 
-    shapeFile.readObject 0, (err, shape) ->
+    # shapeFile.readObject 0, (err, shape) ->
 
-        console.log readObject:
+    #     console.log readObject:
             
-            error: err
-            shape: shape
+    #         error: err
+    #         shape: shape
 
     
 
