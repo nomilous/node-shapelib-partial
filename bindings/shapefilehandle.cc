@@ -5,7 +5,7 @@ void async_open(uv_work_t * job) {
     ShapeFileHandle * handle = (ShapeFileHandle *) job->data;
     
     if( ! handle->SHPOpen() ) { return; }
-    if( ! handle->SHPGetInfo() ) { return; }
+    if( ! handle->SHPReadObjects() ) { return; }
 
 }
 
@@ -27,9 +27,10 @@ void async_open_after(uv_work_t * job, int) {
 
         Local<Object> obj = Object::New();
         obj->Set(
-            String::NewSymbol("entities"), 
-            Number::New(handle->getShapeEntities())
+            String::NewSymbol("count"), 
+            Number::New(handle->getShapeCount())
         );
+
         obj->Set(
             String::NewSymbol("type"), 
             Number::New(handle->getShapeType())
@@ -54,6 +55,11 @@ void async_open_after(uv_work_t * job, int) {
             maxBound
         );
 
+        obj->Set(
+            String::NewSymbol("shapes"),
+            Undefined()
+        );
+
         argv[1] = obj;
 
     }
@@ -65,11 +71,9 @@ void async_open_after(uv_work_t * job, int) {
 
     if (try_catch.HasCaught())
         FatalException(try_catch);
-
-    //
+ 
     printf("free() resources");
-    //
-
+    
 };
 
 ShapeFileHandle::ShapeFileHandle() {};
@@ -89,35 +93,40 @@ bool ShapeFileHandle::SHPOpen() {
 
 };
 
-bool ShapeFileHandle::SHPGetInfo() {
+bool ShapeFileHandle::SHPReadObjects() {
 
     ::SHPGetInfo(shapeHandle, 
-        &shapeEntities, 
+        &shapeCount, 
         &shapeType,
         shapeMinBound, 
         shapeMaxBound
     );
 
-    return true;
+    shapeObjects = new ShapeObject[shapeCount];
 
-};
+    int i;
+    for(i = 0; i < shapeCount; i++) {
 
-bool ShapeFileHandle::SHPReadObject() {
+        //
+        // first version loads all shapes...
+        //
+        // - this may be undesirable for really large shape files
+        //   and should rether become an overidable default with
+        //   the loader accessable through an async call from the
+        //   js side to allow for loading only specific shapes
+        //   from the file.
+        //
 
-    shape = ::SHPReadObject( shapeHandle, shapeId );
+        shapeObjects[i].loadObject(shapeHandle, i);
 
-    if( shape == NULL ) {
-        errorCode = 2;
-        errorMessage = "Unable to read shape object.";
-        return false;
     }
 
     return true;
 
 };
 
-int ShapeFileHandle::getShapeEntities() {
-    return shapeEntities;
+int ShapeFileHandle::getShapeCount() {
+    return shapeCount;
 };
 
 int ShapeFileHandle::getShapeType() {
@@ -160,10 +169,6 @@ int ShapeFileHandle::getErrorCode() {
 string ShapeFileHandle::getErrorMessage() {
         return errorMessage;
 };
-
-void ShapeFileHandle::setShapeId(int32_t id) {
-    shapeId = id;
-}
 
 void ShapeFileHandle::Init(Handle<Object> exports) {
 

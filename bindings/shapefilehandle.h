@@ -12,6 +12,7 @@ Handle the shape file
 #include <string>
 #include <stdlib.h>
 #include "shapefil.h"
+#include "shapeobject.h"
 
 using namespace std;
 using namespace node;
@@ -33,10 +34,9 @@ class ShapeFileHandle : public ObjectWrap {
         string getErrorMessage();
 
         bool SHPOpen();
-        bool SHPGetInfo();
-        bool SHPReadObject();
+        bool SHPReadObjects();
 
-        int getShapeEntities();
+        int getShapeCount();
         int getShapeType();
         double * getShapeMinBound();
         double * getShapeMaxBound();
@@ -50,8 +50,9 @@ class ShapeFileHandle : public ObjectWrap {
         static Handle<Value> OpenAsync(const Arguments& args);
 
         SHPHandle shapeHandle;
+        ShapeObject * shapeObjects;
 
-        int shapeEntities;
+        int shapeCount;
         int shapeType;
         double shapeMinBound[4];
         double shapeMaxBound[4];
