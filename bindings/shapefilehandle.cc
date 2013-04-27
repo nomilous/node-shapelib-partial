@@ -1,8 +1,8 @@
-#include "shapehandle.h"
+#include "shapefilehandle.h"
 
 void async_open(uv_work_t * job) {
 
-    ShapeHandle * handle = (ShapeHandle *) job->data;
+    ShapeFileHandle * handle = (ShapeFileHandle *) job->data;
     
     if( ! handle->SHPOpen() ) { return; }
     if( ! handle->SHPGetInfo() ) { return; }
@@ -19,7 +19,7 @@ void async_open_after(uv_work_t * job, int) {
     argv[0] = Undefined();
     argv[1] = Undefined();
 
-    ShapeHandle * handle = (ShapeHandle *) job->data;
+    ShapeFileHandle * handle = (ShapeFileHandle *) job->data;
 
     if( handle->getErrorCode() > 0 ) {
         argv[0] = Exception::Error(String::New(handle->getErrorMessage().c_str()));
@@ -58,7 +58,13 @@ void async_open_after(uv_work_t * job, int) {
 
     }
 
+    TryCatch try_catch;
     handle->getCallback()->Call( Context::GetCurrent()->Global(), argc, argv );
+    handle->getCallback().Dispose();
+    delete job;
+
+    if (try_catch.HasCaught())
+        FatalException(try_catch);
 
     //
     printf("free() resources");
@@ -80,7 +86,7 @@ void async_read_object(uv_work_t * job) {
 
     // easier to prevent the concurrency problem in the js side
 
-    ShapeHandle * handle = (ShapeHandle *) job->data;
+    ShapeFileHandle * handle = (ShapeFileHandle *) job->data;
 
     if( ! handle->SHPReadObject() ) { return; }
 
@@ -94,7 +100,7 @@ void async_read_object_after(uv_work_t * job, int) {
     argv[0] = Undefined();
     argv[1] = Undefined();
 
-    ShapeHandle * handle = (ShapeHandle *) job->data;
+    ShapeFileHandle * handle = (ShapeFileHandle *) job->data;
 
     if( handle->getErrorCode() > 0 ) {
         argv[0] = Exception::Error(String::New(handle->getErrorMessage().c_str()));
@@ -120,10 +126,10 @@ void async_read_object_after(uv_work_t * job, int) {
     printf("free() resources");
 };
 
-ShapeHandle::ShapeHandle() {};
-ShapeHandle::~ShapeHandle() {};
+ShapeFileHandle::ShapeFileHandle() {};
+ShapeFileHandle::~ShapeFileHandle() {};
 
-bool ShapeHandle::SHPOpen() {
+bool ShapeFileHandle::SHPOpen() {
 
     shapeHandle = ::SHPOpen(filename.c_str(), "rb");
 
@@ -137,7 +143,7 @@ bool ShapeHandle::SHPOpen() {
 
 };
 
-bool ShapeHandle::SHPGetInfo() {
+bool ShapeFileHandle::SHPGetInfo() {
 
     ::SHPGetInfo(shapeHandle, 
         &shapeEntities, 
@@ -150,7 +156,7 @@ bool ShapeHandle::SHPGetInfo() {
 
 };
 
-bool ShapeHandle::SHPReadObject() {
+bool ShapeFileHandle::SHPReadObject() {
 
     shape = ::SHPReadObject( shapeHandle, shapeId );
 
@@ -164,61 +170,61 @@ bool ShapeHandle::SHPReadObject() {
 
 };
 
-int ShapeHandle::getShapeEntities() {
+int ShapeFileHandle::getShapeEntities() {
     return shapeEntities;
 };
 
-int ShapeHandle::getShapeType() {
+int ShapeFileHandle::getShapeType() {
     return shapeType;
 };
 
-double * ShapeHandle::getShapeMinBound() {
+double * ShapeFileHandle::getShapeMinBound() {
     return shapeMinBound;
 };
 
-double * ShapeHandle::getShapeMaxBound() {
+double * ShapeFileHandle::getShapeMaxBound() {
     return shapeMaxBound;
 };
 
-void ShapeHandle::setFilename(string filename) {
+void ShapeFileHandle::setFilename(string filename) {
     this->filename = filename;
 };
 
-string ShapeHandle::getFilename() {
+string ShapeFileHandle::getFilename() {
     return filename;
 };
 
-void ShapeHandle::setCallback(Persistent<Function> callback) {
+void ShapeFileHandle::setCallback(Persistent<Function> callback) {
     this->callback = callback;
 };
 
-Persistent<Function> ShapeHandle::getCallback() {
+Persistent<Function> ShapeFileHandle::getCallback() {
     return callback;
 };
 
-void ShapeHandle::setError(int code, string message) {
+void ShapeFileHandle::setError(int code, string message) {
     errorCode = code;
     errorMessage = message;
 };
 
-int ShapeHandle::getErrorCode() {
+int ShapeFileHandle::getErrorCode() {
     return errorCode;
 };
 
-string ShapeHandle::getErrorMessage() {
+string ShapeFileHandle::getErrorMessage() {
         return errorMessage;
 };
 
-void ShapeHandle::setShapeId(int32_t id) {
+void ShapeFileHandle::setShapeId(int32_t id) {
     shapeId = id;
 }
 
-void ShapeHandle::Init(Handle<Object> exports) {
+void ShapeFileHandle::Init(Handle<Object> exports) {
 
     //printf("ShapeHandle::Init()\n");
     Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
 
-    tpl->SetClassName(String::NewSymbol("ShapeHandle"));
+    tpl->SetClassName(String::NewSymbol("ShapeFile"));
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
     tpl->PrototypeTemplate()->Set(
@@ -231,21 +237,21 @@ void ShapeHandle::Init(Handle<Object> exports) {
     );
 
     Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
-    exports->Set(String::NewSymbol("ShapeHandle"), constructor);
+    exports->Set(String::NewSymbol("ShapeFile"), constructor);
 
 };
 
-Handle<Value> ShapeHandle::New(const Arguments& args) {
+Handle<Value> ShapeFileHandle::New(const Arguments& args) {
 
-    //printf("ShapeHandle::New()\n");
+    //printf("ShapeFileHandle::New()\n");
     HandleScope scope;
-    ShapeHandle* obj = new ShapeHandle();
+    ShapeFileHandle* obj = new ShapeFileHandle();
     obj->Wrap(args.This());
     return args.This();
 
 };
 
-Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
+Handle<Value> ShapeFileHandle::OpenAsync(const Arguments& args) {
 
     HandleScope scope;
     uv_work_t * job;
@@ -253,11 +259,11 @@ Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
     if (args.Length() != 2) {
         return ThrowException(
             Exception::Error(String::New(
-                "Expected ShapeHandle::OpenAsync(<filename>,<callback>)"))
+                "Expected ShapeFileHandle::OpenAsync(<filename>,<callback>)"))
         );
     }
 
-    ShapeHandle* obj = ObjectWrap::Unwrap<ShapeHandle>(args.This());
+    ShapeFileHandle * obj = ObjectWrap::Unwrap<ShapeFileHandle>(args.This());
 
     obj->setFilename(*String::Utf8Value(args[0]->ToString()));
     obj->setCallback(Persistent<Function>::New(Local<Function>::Cast(args[1])));
@@ -272,7 +278,7 @@ Handle<Value> ShapeHandle::OpenAsync(const Arguments& args) {
 
 };
 
-Handle<Value> ShapeHandle::ReadObjectAsync(const Arguments& args) {
+Handle<Value> ShapeFileHandle::ReadObjectAsync(const Arguments& args) {
 
     HandleScope scope;
     uv_work_t * job;
@@ -280,11 +286,11 @@ Handle<Value> ShapeHandle::ReadObjectAsync(const Arguments& args) {
     if (args.Length() != 2) {
         return ThrowException(
             Exception::Error(String::New(
-                "Expected ShapeHandle::ReadObjectAsync(<shapeid>,<callback>)"))
+                "Expected ShapeFileHandle::ReadObjectAsync(<shapeid>,<callback>)"))
         );
     }
 
-    ShapeHandle* obj = ObjectWrap::Unwrap<ShapeHandle>(args.This());
+    ShapeFileHandle* obj = ObjectWrap::Unwrap<ShapeFileHandle>(args.This());
 
     obj->setShapeId(args[0]->ToInt32()->Value());
 

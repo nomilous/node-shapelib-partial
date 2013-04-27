@@ -1,5 +1,11 @@
-#ifndef SHAPEHANDLE_H
-#define SHAPEHANDLE_H
+#ifndef SHAPEFILEHANDLE_H
+#define SHAPEFILEHANDLE_H
+
+/******************************************************************************
+
+Handle the shape file
+
+******************************************************************************/
 
 #include <node.h>
 #include <v8.h>
@@ -11,7 +17,7 @@ using namespace std;
 using namespace node;
 using namespace v8;
 
-class ShapeHandle : public ObjectWrap {
+class ShapeFileHandle : public ObjectWrap {
 
     public:
 
@@ -38,8 +44,8 @@ class ShapeHandle : public ObjectWrap {
 
     private:
 
-        ShapeHandle();
-        ~ShapeHandle();
+        ShapeFileHandle();
+        ~ShapeFileHandle();
 
         static Handle<Value> New(const Arguments& args);
         static Handle<Value> OpenAsync(const Arguments& args);

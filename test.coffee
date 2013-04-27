@@ -1,11 +1,11 @@
 #!/usr/bin/env coffee
 
-ShapeHandle = require('./build/Release/shapelib_bindings').ShapeHandle
+ShapeFile = require('./build/Release/shapelib_bindings').ShapeFile
 
-shapeHandle = new ShapeHandle()
+shapeFile = new ShapeFile()
 
 
-shapeHandle.open './deps/huh/ne_110m_land', (err, shapeInfo) ->
+shapeFile.open './deps/huh/ne_110m_land', (err, shapeInfo) ->
     
     console.log open:
 
@@ -21,7 +21,7 @@ shapeHandle.open './deps/huh/ne_110m_land', (err, shapeInfo) ->
     # binding.  
     # 
 
-    shapeHandle.readObject 0, (err, shape) ->
+    shapeFile.readObject 0, (err, shape) ->
 
         console.log readObject:
             
