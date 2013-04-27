@@ -12,6 +12,8 @@ shapeFile.open './deps/huh/ne_110m_land', (err, shapeData) ->
         error: err
         data: shapeData
 
+    console.log shapeData.shapes
+
 
     # 
     # for id in [0..shapeInfo.entities-1]

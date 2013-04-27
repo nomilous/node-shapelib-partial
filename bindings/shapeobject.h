@@ -23,10 +23,13 @@ class ShapeObject {
         ~ShapeObject();
 
         bool loadObject(SHPHandle shapeHandle, int shapeId);
+        Local<Object> getObject();
 
     private: 
 
+        int id;
         SHPObject * shape;
+        Local<Object> getParts();
 
 };
 

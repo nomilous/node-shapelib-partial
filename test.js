@@ -6,10 +6,11 @@ ShapeFile = require('./build/Release/shapelib_bindings').ShapeFile;
 shapeFile = new ShapeFile();
 
 shapeFile.open('./deps/huh/ne_110m_land', function(err, shapeData) {
-  return console.log({
+  console.log({
     open: {
       error: err,
       data: shapeData
     }
   });
+  return console.log(shapeData.shapes);
 });

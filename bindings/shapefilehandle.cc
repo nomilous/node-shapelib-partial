@@ -231,7 +231,18 @@ Local<Array> ShapeFileHandle::getShapeObjects() {
     // return shape objects as v8 JS array 
     // 
 
-    return Array::New(0);
+    HandleScope scope;
+    int i;
+    Local<Array> shapes = Array::New(shapeCount);
+
+    for( i = 0; i < shapeCount; i++ ) shapes->Set(
+
+        Number::New(i), 
+        shapeObjects[i].getObject()
+
+    );
+
+    return scope.Close( shapes );
 
 };
 
