@@ -1,0 +1,19 @@
+{
+  "name": "node-shapelib-partial",
+  "description": "Node bindings for shapelib.maptools.org's shapefile inplementation",
+  "version": "0.0.1",
+  "author": "nomilous <nomilous@gmail.com>",
+  "contributors": [
+    {
+      "name": "nomilous",
+      "email": "nomilous@gmail.com"
+    }
+  ],
+  "main": "./lib/shapefile",
+  "repository": "git@github.com:nomilous/node-shapelib-partial.git",
+  "dependencies": {},
+  "devDependencies": {
+    "nez": "0.0.7",
+    "should": "~1.2.2"
+  }
+}

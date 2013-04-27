@@ -36,6 +36,7 @@ class ShapeFileHandle : public ObjectWrap {
 
         bool Open();
         bool ReadShapeObjects();
+        bool Close();
 
         int getShapeCount();
         int getShapeType();

@@ -18,7 +18,7 @@ class ShapeObject {
 
     public:
 
-        ShapeObject();
+        ShapeObject(); 
         ~ShapeObject();
 
         bool loadShapeHandle(SHPHandle shapeHandle, int shapeId);

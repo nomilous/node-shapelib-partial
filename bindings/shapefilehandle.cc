@@ -79,6 +79,7 @@ void async_open_after(uv_work_t * request, int) {
     TryCatch try_catch;
     handle->getCallback()->Call( Context::GetCurrent()->Global(), argc, argv );
     handle->getCallback().Dispose();
+    handle->Close();
     delete request;
 
     if (try_catch.HasCaught())
@@ -204,6 +205,14 @@ bool ShapeFileHandle::Open() {
 
 };
 
+bool ShapeFileHandle::Close() {
+
+    if( shapeHandle != NULL ) SHPClose(shapeHandle);
+    if( dbfHandle != NULL ) DBFClose(dbfHandle);
+    return true;
+    
+};
+
 bool ShapeFileHandle::ReadShapeObjects() {
 
     SHPGetInfo(shapeHandle, 
@@ -252,12 +261,16 @@ Local<Array> ShapeFileHandle::getShapeObjects() {
     int i;
     Local<Array> shapes = Array::New(shapeCount);
 
-    for( i = 0; i < shapeCount; i++ ) shapes->Set(
+    for( i = 0; i < shapeCount; i++ ) {
 
-        Number::New(i), 
-        shapeObjects[i].getObject()
+        shapes->Set(
 
-    );
+            Number::New(i), 
+            shapeObjects[i].getObject()
+
+        );
+
+    }
 
     return scope.Close( shapes );
 
