@@ -13,9 +13,9 @@ shapeFile.open './deps/huh/ne_110m_land', (err, shapeData) ->
     #     data: shapeData
 
     for i in [0..shapeData.count-1]
-        
-        console.log shapeData.shapes[i]
+        console.log shapeData.shapes[i].vertices
 
+    #console.log shapeData.shapes[126].vertices
 #shapeHandle.close()
 #shapeHandle.openSync
 #shapeHandle.readObjectSync

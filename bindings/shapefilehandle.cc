@@ -84,7 +84,7 @@ void async_open_after(uv_work_t * request, int) {
     if (try_catch.HasCaught())
         FatalException(try_catch);
  
-    printf("free() resources");
+    //printf("free() resources");
     
 };
 

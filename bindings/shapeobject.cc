@@ -34,6 +34,27 @@ Local<Object> ShapeObject::getObject() {
 
     jsShape->Set(
 
+        String::NewSymbol("type"),
+        Number::New(shape->nSHPType)
+
+    );
+
+    jsShape->Set(
+
+        String::NewSymbol("partCount"),
+        Number::New(shape->nParts)
+
+    );
+
+    jsShape->Set(
+
+        String::NewSymbol("vertexCount"),
+        Number::New(shape->nVertices)
+
+    );
+
+    jsShape->Set(
+
         String::NewSymbol("fields"),
         getFields()
 
@@ -41,7 +62,7 @@ Local<Object> ShapeObject::getObject() {
 
     jsShape->Set(
 
-        String::NewSymbol("parts"),
+        String::NewSymbol("vertices"),
         getParts()
 
     );
@@ -55,7 +76,35 @@ Local<Array> ShapeObject::getParts() {
 
     HandleScope scope;
 
-    return scope.Close( Array::New() );
+    // Local<Array> parts = Array::New();
+
+    //
+    // i'm confuzed about how to read the parts, 
+    // so only supporting first part
+    //
+    // or that's what i think i'm doing,
+    // docs a bit vague on the meaning of part
+    //
+
+    Local<Array> vertices = Array::New();
+
+    int i;
+    for(i = 0; i < shape->nVertices; i++ ) {
+
+        Local<Array> vertex = Array::New();
+
+        vertex->Set(Number::New(0), Number::New(shape->padfX[i]));
+        vertex->Set(Number::New(1), Number::New(shape->padfY[i]));
+        vertex->Set(Number::New(2), Number::New(shape->padfZ[i]));
+        vertex->Set(Number::New(3), Number::New(shape->padfM[i]));
+
+        vertices->Set(i, vertex);
+
+    }
+
+    //parts->Set(Number::New(0), vertices);
+
+    return scope.Close(vertices);
 
 };
 
