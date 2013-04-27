@@ -182,6 +182,19 @@ Handle<Value> ShapeFileHandle::OpenAsync(const Arguments& args) {
 bool ShapeFileHandle::Open() {
 
     shapeHandle = ::SHPOpen(filename.c_str(), "rb");
+    dbfHandle = ::DBFOpen(filename.c_str(), "rb");
+
+    if( dbfHandle != NULL ) {
+        dbfFieldCount = ::DBFGetFieldCount(dbfHandle);
+        dbfRecordCount = ::DBFGetRecordCount(dbfHandle);
+
+        printf("dbf fields:%i, records:%i", dbfFieldCount, dbfRecordCount);
+    }
+
+    //
+    // failure to open DBF file is ignored externally
+    // ie. no error is loaded
+    //
 
     if( shapeHandle == NULL ) {
         errorCode = 1;
