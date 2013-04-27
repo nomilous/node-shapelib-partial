@@ -22,7 +22,9 @@ class ShapeObject {
         ShapeObject();
         ~ShapeObject();
 
-        bool loadObject(SHPHandle shapeHandle, int shapeId);
+        bool loadShape(SHPHandle shapeHandle, int shapeId);
+        bool loadRecord(DBFHandle dbfHandle, int shapeId);
+        
         Local<Object> getObject();
 
     private: 

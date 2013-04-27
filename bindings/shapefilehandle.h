@@ -60,7 +60,7 @@ class ShapeFileHandle : public ObjectWrap {
         double shapeMinBound[4];
         double shapeMaxBound[4];
 
-        int dbfRecordCount;     // no records (will usually match n shapes in the .shp file)
+        int dbfRecordCount;     // will usually match n shapes in the .shp file
         int dbfFieldCount;      // fields per record
 
         string filename;
